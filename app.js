@@ -200,19 +200,42 @@ app.get('/logout', (req, res) => {
 // shown and graded as one self-contained file.
 // Mounted here so its routes become /jobs/add (GET and POST).
 // =====================================================
+
+// Yashveen Part B (START) 
 const jobsRouter = require('./routes/jobs');
 app.use('/jobs', jobsRouter);
+// Yashveen Part B (END)
 
+
+// Ignatius start of Code
 const browseRouter = require('./routes/browse');
 app.use('/jobs', browseRouter);
+// Ignatius end of Code
 
+// =====================================================
+// PART E - APPLICATION MANAGEMENT
+// Feature: Apply for Job / View Applications / Withdraw /
+//          Applicant Management / Status Management
+// Purpose:
+// All routes for this feature live in routes/applications.js
+// so it can be shown and graded as one self-contained file.
+// Mounted here so its routes become /applications (GET and POST).
+// =====================================================
+const applicationsRouter = require('./routes/applications');
+app.use('/applications', applicationsRouter);
+
+//keven start of code
+// Profile Feature Route
+const profileRouter = require('./routes/profile');
+app.use('/profile', profileRouter);
+// keven end of code
 // =====================================================
 // START SERVER
 // Purpose:
 // Run app on http://localhost:3000
 // =====================================================
 app.listen(3000, () => {
-    console.log('Server started on port 3000');
+    console.log(`Server started on port http://localhost:3000`);
 });
 
 // Samie end of Login Page Assignment ===============================================================

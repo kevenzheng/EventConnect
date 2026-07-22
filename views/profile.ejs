@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile - EventConnect</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">Home</a>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/jobs" class="nav-btn">View Jobs</a>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-card">
+            <h1><%= profileUser.username %>'s Profile</h1>
+            <p><strong>Account Role:</strong> <%= profileUser.role === 'admin' ? 'Employer (Admin)' : 'Employee' %></p>
+            <p><strong>Email:</strong> <%= profileUser.email %></p>
+            <p><strong>Contact:</strong> <%= profileUser.contact %></p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Average Performance Rating</h3>
+            <% if (avgRating) { %>
+                <h2 style="color: #f39c12; margin: 5px 0;"><%= avgRating %> / 5.0 ★</h2>
+                <p>Based on <%= reviewCount %> review(s)</p>
+            <% } else { %>
+                <p>No ratings or feedback recorded yet.</p>
+            <% } %>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Feedback & Reviews Received</h3>
+            <% if (reviews && reviews.length > 0) { %>
+                <% reviews.forEach(function(r) { %>
+                    <div class="review-card">
+                        <p class="star-rating"><%= r.rating %> / 5 ★ <small>for <strong><%= r.job_title %></strong></small></p>
+                        <p> "<%= r.review_text %>"</p>
+                        <small style="color: #777;">&mdash; Posted by <%= r.reviewer_name %></small>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>No written reviews available.</p>
+            <% } %>
+        </div>
+    </div>
+
+</body>
+</html>

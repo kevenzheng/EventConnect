@@ -16,6 +16,12 @@
             <% if (user.role === 'admin') { %>
                 <a href="/jobs/add" class="nav-btn">Create Job</a>
             <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications" class="nav-btn">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage" class="nav-btn">Manage Applications</a>
+            <% } %>
+            <a href="/profile" class="nav-btn">My Profile</a>
             <a href="/logout" class="nav-btn logout-btn">Logout</a>
         </div>
     </nav>

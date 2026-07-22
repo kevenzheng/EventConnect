@@ -259,3 +259,57 @@ select {
     background-color: #f7f4ff;
     border-radius: 10px;
 }
+/* =====================================================
+   PART E - APPLICATION STATUS BADGES
+   Purpose:
+   Colour codes the status shown on My Applications and
+   Manage Applications pages so it's easy to read at a glance.
+===================================================== */
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #8a6d00;
+}
+
+.status-accepted {
+    background-color: #e6ffed;
+    color: #0f7b32;
+}
+
+.status-rejected {
+    background-color: #ffe5e5;
+    color: #b00020;
+}
+
+
+/* =================================
+ Employer Reviews & Rating Styles */
+.review-card {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+}
+
+/* ================================= 
+ Review preview: truncated after roughly 8 words with a fade-out effect */
+.review-preview {
+    max-width: 280px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #555;
+    position: relative;
+    margin: 4px 0 0 0;
+}
+
+.star-rating {
+    color: #f39c12;
+    font-weight: bold;
+    margin: 0;
+}

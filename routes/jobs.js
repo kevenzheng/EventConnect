@@ -148,8 +148,11 @@ router.post('/add', checkAuthenticated, checkAdmin, validateJob, (req, res) => {
     const { job_title, event_name, description, location, salary, event_date, working_hours, workers_required } = req.body;
     const postedBy = req.session.user.id;
 
+    // Yashveen Part B (START)
     const sql = `INSERT INTO Jobs (job_title, event_name, description, location, salary, event_date, working_hours, workers_required, posted_by)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    // Yashveen Part B (END)
 
     db.query(sql, [job_title, event_name, description, location, salary, event_date, working_hours, workers_required, postedBy], (err, result) => {
         if (err) {

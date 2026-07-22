@@ -1,3 +1,4 @@
+<!-- Done by Ignatius and keven -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,6 +16,11 @@
             <a href="/jobs" class="nav-btn active-btn">View Jobs</a>
             <% if (user.role === 'admin') { %>
                 <a href="/jobs/add" class="nav-btn">Create Job</a>
+            <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications" class="nav-btn">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage" class="nav-btn">Manage Applications</a>
             <% } %>
             <a href="/logout" class="nav-btn logout-btn">Logout</a>
         </div>
@@ -43,9 +49,37 @@
             <p><strong>Employer:</strong> <%= job.employer_name %></p>
             <p><strong>Contact Email:</strong> <%= job.employer_email %></p>
 
-            <h4>Employer Ratings</h4>
-            <p>No ratings available yet.</p>
+            <h4>Employer Ratings & Reviews</h4>
+
+            <% if (reviews && reviews.length > 0) { %>
+                <% reviews.forEach(function(review) { %>
+                    <div class="review-card">
+                        <p class="star-rating">
+                            Rating: <%= review.rating %> / 5 ★ 
+                            <small style="color:#777;">by <%= review.reviewer_name %></small>
+                        </p>
+                        <p class="review-preview" title="<%= review.review_text %>">
+                            "<%= review.review_text %>"
+                        </p>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <!-- Fallback Example Preview -->
+                <div class="review-card">
+                    <p class="star-rating">Rating: 5 / 5 ★ <small style="color:#777;">by John (Example)</small></p>
+                    <p class="review-preview">"Great employer! Pay was prompt and instructions were clear..."</p>
+                </div>
+            <% } %>
+
+            <br>
+            <a href="/jobs/review/<%= job.id %>" class="nav-btn" style="display:inline-block; margin-top: 10px;">Leave a Review & Rating</a>
         </div>
+
+        <% if (user.role === 'user') { %>
+            <form action="/applications/apply/<%= job.id %>" method="POST" style="display:inline;">
+                <button type="submit" class="main-btn">Apply for this Job</button>
+            </form>
+        <% } %>
 
         <a href="/jobs" class="main-btn">&larr; Back to Job Listings</a>
     </div>

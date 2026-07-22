@@ -16,6 +16,12 @@
             <% if (user.role === 'admin') { %>
                 <a href="/jobs/add" class="nav-btn">Create Job</a>
             <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications" class="nav-btn">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage" class="nav-btn">Manage Applications</a>
+            <% } %>
+            <a href="/profile" class="nav-btn">My Profile</a>
             <a href="/logout" class="nav-btn logout-btn">Logout</a>
         </div>
     </nav>
@@ -37,6 +43,18 @@
             <a href="/jobs" class="main-btn">View Jobs</a>
             <% if (user.role === 'admin') { %>
                 <a href="/jobs/add" class="main-btn secondary-btn">+ Create Job</a>
+            <% } %>
+        </div>
+
+        <div class="dashboard-card">
+            <% if (user.role === 'admin') { %>
+                <h3>Applicant Management</h3>
+                <p>View every applicant and update their application status.</p>
+                <a href="/applications/manage" class="main-btn">Manage Applications</a>
+            <% } else { %>
+                <h3>My Applications</h3>
+                <p>Check the status of the jobs you applied for, or withdraw an application.</p>
+                <a href="/applications" class="main-btn">View My Applications</a>
             <% } %>
         </div>
 

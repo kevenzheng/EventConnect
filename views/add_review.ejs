@@ -1,0 +1,53 @@
+<!-- Done by Keven -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Review - EventConnect</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+        <div class="nav-buttons">
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/jobs" class="nav-btn">View Jobs</a>
+            <a href="/profile" class="nav-btn">My Profile</a>
+            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-card">
+            <h1>Leave a Review for <%= job.employer_name %></h1>
+            <p><strong>Job:</strong> <%= job.job_title %> (<%= job.event_name %>)</p>
+
+            <% if (errors && errors.length > 0) { %>
+                <div class="error"><%= errors[0] %></div>
+            <% } %>
+
+            <form action="/jobs/review/<%= job.id %>" method="POST">
+                <div style="margin-bottom: 15px;">
+                    <label for="rating"><strong>Rating (1 to 5):</strong></label><br>
+                    <select name="rating" id="rating" required style="padding: 8px; width: 100%;">
+                        <option value="5">5 - Excellent</option>
+                        <option value="4">4 - Very Good</option>
+                        <option value="3">3 - Average</option>
+                        <option value="2">2 - Poor</option>
+                        <option value="1">1 - Terrible</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="review_text"><strong>Review:</strong></label><br>
+                    <textarea name="review_text" id="review_text" rows="4" required style="width: 100%; padding: 8px;" placeholder="Write your review here..."></textarea>
+                </div>
+
+                <button type="submit" class="main-btn">Submit Review</button>
+                <a href="/jobs/<%= job.id %>" class="nav-btn">Cancel</a>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
