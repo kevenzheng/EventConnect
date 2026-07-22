@@ -235,7 +235,7 @@ app.use('/profile', profileRouter);
 // Run app on http://localhost:3000
 // =====================================================
 app.listen(3000, () => {
-    console.log(`Server started on port http://localhost:3000`);
+    console.log(`Server started on port 3000`);
 });
 
 // Samie end of Login Page Assignment ===============================================================
