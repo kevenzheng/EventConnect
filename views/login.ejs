@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - EventConnect</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+
+        <div class="nav-buttons">
+            <a href="/">Home</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <h1>Login to EventConnect</h1>
+
+        <p>Find event jobs or manage event staff easily.</p>
+
+        <% if (messages.length > 0) { %>
+            <div class="success">
+                <%= messages[0] %>
+            </div>
+        <% } %>
+
+        <% if (errors.length > 0) { %>
+            <div class="error">
+                <%= errors[0] %>
+            </div>
+        <% } %>
+
+        <form action="/login" method="POST">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Enter your email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="small-text">
+            Do not have an account yet?
+            <a href="/register">Register here</a>
+        </p>
+    </div>
+
+</body>
+</html>

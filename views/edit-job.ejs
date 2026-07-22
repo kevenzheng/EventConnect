@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Job - EventConnect</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">Home</a>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/jobs" class="nav-btn active-btn">View Jobs</a>
+            <a href="/jobs/add" class="nav-btn">Create Job</a>
+            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="login-container">
+        <h1>Edit Job</h1>
+
+        <p>Update the details for this event job posting.</p>
+
+        <% if (errors && errors.length > 0) { %>
+            <div class="error">
+                <% errors.forEach(function(message) { %>
+                    <p><%= message %></p>
+                <% }); %>
+            </div>
+        <% } %>
+
+        <form action="/jobs/edit/<%= job.id %>" method="POST">
+            <label for="job_title">Job Title</label>
+            <input type="text" id="job_title" name="job_title" required value="<%= job.job_title %>">
+
+            <label for="event_name">Event Name</label>
+            <input type="text" id="event_name" name="event_name" required value="<%= job.event_name %>">
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" required><%= job.description %></textarea>
+
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" required value="<%= job.location %>">
+
+            <label for="salary">Salary (SGD)</label>
+            <input type="number" step="0.01" min="0.01" id="salary" name="salary" required value="<%= job.salary %>">
+
+            <label for="event_date">Event Date</label>
+            <input
+                type="date"
+                id="event_date"
+                name="event_date"
+                required
+                value="<%= new Date(job.event_date).toISOString().split('T')[0] %>"
+            >
+
+            <label for="working_hours">Working Hours</label>
+            <input type="text" id="working_hours" name="working_hours" required value="<%= job.working_hours %>">
+
+            <label for="workers_required">Number of Workers Required</label>
+            <input type="number" step="1" min="1" id="workers_required" name="workers_required" required value="<%= job.workers_required %>">
+
+            <button type="submit">Save Changes</button>
+        </form>
+
+        <p class="small-text">
+            <a href="/jobs">Back to Job Listings</a>
+        </p>
+    </div>
+
+</body>
+</html>

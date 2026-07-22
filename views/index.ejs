@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EventConnect</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn active-btn">Home</a>
+
+            <% if (user) { %>
+                <a href="/dashboard" class="nav-btn">Dashboard</a>
+                <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <% } else { %>
+                <a href="/login" class="nav-btn">Login</a>
+                <a href="/register" class="nav-btn register-btn">Register</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Event Jobs Made Simple</h1>
+
+        <p>
+            EventConnect helps event employers and temporary event workers connect easily.
+        </p>
+
+        <% if (user) { %>
+            <a href="/dashboard" class="main-btn">Go to Dashboard</a>
+        <% } else { %>
+            <a href="/login" class="main-btn">Login Now</a>
+            <a href="/register" class="main-btn secondary-btn">Register Now</a>
+        <% } %>
+    </section>
+
+</body>
+</html>

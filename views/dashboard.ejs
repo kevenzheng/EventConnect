@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - EventConnect</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">Home</a>
+            <a href="/dashboard" class="nav-btn active-btn">Dashboard</a>
+            <a href="/jobs" class="nav-btn">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add" class="nav-btn">Create Job</a>
+            <% } %>
+            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <h1>Welcome, <%= user.username %></h1>
+
+        <p>You are successfully logged in to EventConnect.</p>
+
+        <% if (typeof messages !== 'undefined' && messages.length > 0) { %>
+            <div class="success">
+                <%= messages[0] %>
+            </div>
+        <% } %>
+
+        <div class="dashboard-card">
+            <h3>Event Jobs</h3>
+            <p>Browse all posted event jobs.</p>
+            <a href="/jobs" class="main-btn">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add" class="main-btn secondary-btn">+ Create Job</a>
+            <% } %>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Your Account Details</h3>
+
+            <p>
+                <strong>Email:</strong>
+                <%= user.email %>
+            </p>
+
+            <p>
+                <strong>Role:</strong>
+                <%= user.role %>
+            </p>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>EventConnect Access</h3>
+            <p>
+                This dashboard is a protected page.
+                Only users who have logged in can view it.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
