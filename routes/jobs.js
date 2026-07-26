@@ -20,6 +20,36 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/connection');
+const multer = require('multer');
+const path = require('path');
+
+// =====================================================
+// PHOTO UPLOAD SETUP (multer)
+// Purpose:
+// Lets an admin attach a photo when creating/editing a job.
+// Files are saved to /public/uploads/jobs so they can be
+// served as static files (e.g. /uploads/jobs/169999-photo.jpg).
+// =====================================================
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '../public/uploads/jobs'));
+    },
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
+        cb(null, uniqueName);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+    fileFilter: (req, file, cb) => {
+        const allowed = /jpeg|jpg|png|webp/;
+        const ok = allowed.test(path.extname(file.originalname).toLowerCase());
+        if (ok) return cb(null, true);
+        cb(new Error('Only image files (jpg, jpeg, png, webp) are allowed.'));
+    }
+});
 
 // =====================================================
 // AUTHENTICATION CHECK (local to this feature)
@@ -58,13 +88,13 @@ const checkAdmin = (req, res, next) => {
 // Used by both Create and Edit.
 // =====================================================
 const validateJob = (req, res, next) => {
-    const { job_title, event_name, description, location, salary, event_date, working_hours, workers_required } = req.body;
+    const { job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required } = req.body;
 
     // Express 5 removed res.redirect('back'), so we build the correct
     // "go back to the form" URL from the current request path instead.
     const backUrl = req.originalUrl;
 
-    if (!job_title || !event_name || !description || !location || !salary || !event_date || !working_hours || !workers_required) {
+    if (!job_title || !event_name || !description || !location || !nearest_station || !salary || !event_date || !working_hours || !workers_required) {
         req.flash('error', 'All fields are required.');
         req.flash('formData', req.body);
         return res.redirect(backUrl);
@@ -94,7 +124,7 @@ const validateJob = (req, res, next) => {
 // Accept Job button or an "Accepted" label).
 // =====================================================
 router.get('/', checkAuthenticated, (req, res) => {
-    const sql = 'SELECT * FROM Jobs ORDER BY event_date ASC';
+    const sql = 'SELECT * FROM jobs ORDER BY event_date ASC';
 
     db.query(sql, (err, results) => {
         if (err) {
@@ -117,7 +147,10 @@ router.get('/', checkAuthenticated, (req, res) => {
                 jobs: results,
                 acceptedJobIds: acceptedJobIds,
                 messages: req.flash('success'),
-                errors: req.flash('error')
+                errors: req.flash('error'),
+                location: '',
+                date: '',
+                sort: ''
             });
         });
     });
@@ -144,17 +177,35 @@ router.get('/add', checkAuthenticated, checkAdmin, (req, res) => {
 // Insert the new job posting into the Jobs table,
 // linked to the admin account that posted it.
 // =====================================================
-router.post('/add', checkAuthenticated, checkAdmin, validateJob, (req, res) => {
-    const { job_title, event_name, description, location, salary, event_date, working_hours, workers_required } = req.body;
+router.post('/add', checkAuthenticated, checkAdmin, (req, res, next) => {
+    // Run multer first so req.body/req.file are populated before validation
+    upload.single('photo')(req, res, (err) => {
+        if (err) {
+            req.flash('error', err.message);
+            req.flash('formData', req.body);
+            return res.redirect('/jobs/add');
+        }
+        next();
+    });
+}, validateJob, (req, res) => {
+    const { job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required } = req.body;
     const postedBy = req.session.user.id;
 
+    if (!req.file) {
+        req.flash('error', 'A photo is required when creating a job.');
+        req.flash('formData', req.body);
+        return res.redirect('/jobs/add');
+    }
+
+    const photo = req.file.filename;
+
     // Yashveen Part B (START)
-    const sql = `INSERT INTO Jobs (job_title, event_name, description, location, salary, event_date, working_hours, workers_required, posted_by)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    const sql = `INSERT INTO jobs (job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required, posted_by, photo)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     // Yashveen Part B (END)
 
-    db.query(sql, [job_title, event_name, description, location, salary, event_date, working_hours, workers_required, postedBy], (err, result) => {
+    db.query(sql, [job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required, postedBy, photo], (err, result) => {
         if (err) {
             throw err;
         }
@@ -172,7 +223,7 @@ router.post('/add', checkAuthenticated, checkAdmin, validateJob, (req, res) => {
 // Admin only.
 // =====================================================
 router.get('/edit/:id', checkAuthenticated, checkAdmin, (req, res) => {
-    const sql = 'SELECT * FROM Jobs WHERE id = ?';
+    const sql = 'SELECT * FROM jobs WHERE id = ?';
 
     db.query(sql, [req.params.id], (err, results) => {
         if (err) {
@@ -198,22 +249,48 @@ router.get('/edit/:id', checkAuthenticated, checkAdmin, (req, res) => {
 // Purpose:
 // Update an existing job posting's details in the Jobs table.
 // =====================================================
-router.post('/edit/:id', checkAuthenticated, checkAdmin, validateJob, (req, res) => {
-    const { job_title, event_name, description, location, salary, event_date, working_hours, workers_required } = req.body;
-
-    const sql = `UPDATE Jobs
-                 SET job_title = ?, event_name = ?, description = ?, location = ?,
-                     salary = ?, event_date = ?, working_hours = ?, workers_required = ?
-                 WHERE id = ?`;
-
-    db.query(sql, [job_title, event_name, description, location, salary, event_date, working_hours, workers_required, req.params.id], (err, result) => {
+router.post('/edit/:id', checkAuthenticated, checkAdmin, (req, res, next) => {
+    // Run multer first so req.body/req.file are populated before validation.
+    // Photo is optional on edit - admin can leave it blank to keep the existing one.
+    upload.single('photo')(req, res, (err) => {
         if (err) {
-            throw err;
+            req.flash('error', err.message);
+            return res.redirect('/jobs/edit/' + req.params.id);
         }
-
-        req.flash('success', 'Job updated successfully!');
-        res.redirect('/jobs');
+        next();
     });
+}, validateJob, (req, res) => {
+    const { job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required } = req.body;
+
+    // If a new photo was uploaded, use it. Otherwise keep the existing photo.
+    if (req.file) {
+        const photo = req.file.filename;
+        const sql = `UPDATE jobs
+                     SET job_title = ?, event_name = ?, description = ?, location = ?, nearest_station = ?,
+                         salary = ?, event_date = ?, working_hours = ?, workers_required = ?, photo = ?
+                     WHERE id = ?`;
+
+        db.query(sql, [job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required, photo, req.params.id], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            req.flash('success', 'Job updated successfully!');
+            res.redirect('/jobs');
+        });
+    } else {
+        const sql = `UPDATE jobs
+                     SET job_title = ?, event_name = ?, description = ?, location = ?, nearest_station = ?,
+                         salary = ?, event_date = ?, working_hours = ?, workers_required = ?
+                     WHERE id = ?`;
+
+        db.query(sql, [job_title, event_name, description, location, nearest_station, salary, event_date, working_hours, workers_required, req.params.id], (err, result) => {
+            if (err) {
+                throw err;
+            }
+            req.flash('success', 'Job updated successfully!');
+            res.redirect('/jobs');
+        });
+    }
 });
 
 // =====================================================
@@ -223,7 +300,7 @@ router.post('/edit/:id', checkAuthenticated, checkAdmin, validateJob, (req, res)
 // Remove a job posting from the Jobs table. Admin only.
 // =====================================================
 router.post('/delete/:id', checkAuthenticated, checkAdmin, (req, res) => {
-    const sql = 'DELETE FROM Jobs WHERE id = ?';
+    const sql = 'DELETE FROM jobs WHERE id = ?';
 
     db.query(sql, [req.params.id], (err, result) => {
         if (err) {

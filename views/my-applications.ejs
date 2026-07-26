@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>My Applications - EventConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -10,11 +12,25 @@
         <h2>EventConnect</h2>
 
         <div class="nav-buttons">
-            <a href="/" class="nav-btn">Home</a>
-            <a href="/dashboard" class="nav-btn">Dashboard</a>
-            <a href="/jobs" class="nav-btn">View Jobs</a>
-            <a href="/applications" class="nav-btn active-btn">My Applications</a>
-            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add">Create Job</a>
+            <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage">Manage Applications</a>
+            <% } %>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </nav>
 
@@ -34,30 +50,32 @@
         <% if (applications.length === 0) { %>
             <div class="dashboard-card">
                 <p>You haven't applied for any jobs yet.</p>
-                <a href="/jobs" class="main-btn">Browse Jobs</a>
+                <a href="/jobs" class="btn btn-primary">Browse Jobs</a>
             </div>
         <% } %>
 
-        <% applications.forEach(function(app) { %>
-            <div class="dashboard-card">
-                <h3><%= app.job_title %> &mdash; <%= app.event_name %></h3>
+        <div class="card-grid">
+            <% applications.forEach(function(app) { %>
+                <div class="dashboard-card">
+                    <h3><%= app.job_title %> &mdash; <%= app.event_name %></h3>
 
-                <p><strong>Location:</strong> <%= app.location %></p>
-                <p><strong>Event Date:</strong> <%= new Date(app.event_date).toISOString().split('T')[0] %></p>
-                <p><strong>Applied On:</strong> <%= new Date(app.applied_at).toISOString().split('T')[0] %></p>
+                    <p><strong>Location:</strong> <%= app.location %></p>
+                    <p><strong>Event Date:</strong> <%= new Date(app.event_date).toISOString().split('T')[0] %></p>
+                    <p><strong>Applied On:</strong> <%= new Date(app.applied_at).toISOString().split('T')[0] %></p>
 
-                <p>
-                    <strong>Status:</strong>
-                    <span class="status-badge status-<%= app.status.toLowerCase() %>"><%= app.status %></span>
-                </p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="status-badge status-<%= app.status.toLowerCase() %>"><%= app.status %></span>
+                    </p>
 
-                <a href="/jobs/<%= app.job_id %>" class="main-btn">View Job</a>
+                    <a href="/jobs/<%= app.job_id %>" class="btn btn-primary">View Job</a>
 
-                <form action="/applications/withdraw/<%= app.id %>" method="POST" style="display:inline;">
-                    <button type="submit" class="secondary-btn" onclick="return confirm('Withdraw this application?');">Withdraw</button>
-                </form>
-            </div>
-        <% }); %>
+                    <form action="/applications/withdraw/<%= app.id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Withdraw this application?');">Withdraw</button>
+                    </form>
+                </div>
+            <% }); %>
+        </div>
     </div>
 
 </body>

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Job Listings - EventConnect</title>
+    <title>Job Listings - EventConnect</title>    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">    
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -10,23 +12,58 @@
         <h2>EventConnect</h2>
 
         <div class="nav-buttons">
-            <a href="/" class="nav-btn">Home</a>
-            <a href="/dashboard" class="nav-btn">Dashboard</a>
-            <a href="/jobs" class="nav-btn active-btn">View Jobs</a>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
             <% if (user.role === 'admin') { %>
-                <a href="/jobs/add" class="nav-btn">Create Job</a>
+                <a href="/jobs/add">Create Job</a>
             <% } %>
             <% if (user.role === 'user') { %>
-                <a href="/applications" class="nav-btn">My Applications</a>
+                <a href="/applications">My Applications</a>
             <% } else if (user.role === 'admin') { %>
-                <a href="/applications/manage" class="nav-btn">Manage Applications</a>
+                <a href="/applications/manage">Manage Applications</a>
             <% } %>
-            <a href="/profile" class="nav-btn">My Profile</a>
-            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </nav>
 
     <div class="dashboard-container">
+                <div class="search-section mb-3">
+            <form action="/jobs/search" method="get">
+                <input type="text" name="q" placeholder="Search for jobs" class="form-control" />
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </form>
+        </div>
+
+        <div class="filter-section mb-3">
+    <form action="/jobs/filter" method="get">
+        <input
+            type="text"
+            name="location"
+            placeholder="Type in location"
+            class="form-control"
+            value="<%= location || '' %>"
+        />
+
+        <select name="sort" class="form-control mb-2">
+            <option value="">Sort by</option>
+            <option value="event_date_asc" <%= sort === 'event_date_asc' ? 'selected' : '' %>>Event Date ↑</option>
+            <option value="event_date_desc" <%= sort === 'event_date_desc' ? 'selected' : '' %>>Event Date ↓</option>
+            <option value="salary_asc" <%= sort === 'salary_asc' ? 'selected' : '' %>>Salary ↑</option>
+            <option value="salary_desc" <%= sort === 'salary_desc' ? 'selected' : '' %>>Salary ↓</option>
+            <option value="location_asc" <%= sort === 'location_asc' ? 'selected' : '' %>>Location A-Z</option>
+            <option value="location_desc" <%= sort === 'location_desc' ? 'selected' : '' %>>Location Z-A</option>
+        </select>
+
+        <button type="submit" class="btn btn-secondary">Filter</button>
+    </form>
         <h1>Event Job Listings</h1>
 
         <% if (messages && messages.length > 0) { %>
@@ -43,36 +80,43 @@
             </div>
         <% } %>
 
-        <% jobs.forEach(function(job) { %>
-            <div class="dashboard-card">
-                <h3><%= job.job_title %> &mdash; <%= job.event_name %></h3>
+        <div class="card-grid">
+            <% jobs.forEach(function(job) { %>
+                <div class="dashboard-card">
+                    <h3><%= job.job_title %> &mdash; <%= job.event_name %></h3>
 
-                <a href="/jobs/<%= job.id %>" class="main-btn">View Details</a>
+                    <a href="/jobs/<%= job.id %>" class="btn btn-primary">View Details</a>
 
-                <p><%= job.description %></p>
+                    <p><%= job.description %></p>
 
-                <p><strong>Location:</strong> <%= job.location %></p>
-                <p><strong>Event Date:</strong> <%= new Date(job.event_date).toISOString().split('T')[0] %></p>
-                <p><strong>Working Hours:</strong> <%= job.working_hours %></p>
-                <p><strong>Salary:</strong> $<%= job.salary %></p>
-                <p><strong>Workers Required:</strong> <%= job.workers_required %></p>
+                    <p><strong>Location:</strong> <%= job.location %></p>
+                    <p><strong>Event Date:</strong> <%= new Date(job.event_date).toISOString().split('T')[0] %></p>
+                    <p><strong>Working Hours:</strong> <%= job.working_hours %></p>
+                    <p><strong>Salary:</strong> $<%= job.salary %></p>
+                    <p><strong>Workers Required:</strong> <%= job.workers_required %></p>
 
-                <% if (user.role === 'admin') { %>
-                    <a href="/jobs/edit/<%= job.id %>" class="main-btn">Edit</a>
-                    <form action="/jobs/delete/<%= job.id %>" method="POST" style="display:inline;">
-                        <button type="submit" class="secondary-btn" onclick="return confirm('Delete this job posting?');">Delete</button>
-                    </form>
-                <% } else if (user.role === 'user') { %>
-                    <% if (acceptedJobIds.includes(job.id)) { %>
-                        <span class="success" style="display:inline-block; margin-top:15px;">✓ Accepted</span>
-                    <% } else { %>
-                        <form action="/jobs/accept/<%= job.id %>" method="POST" style="display:inline;">
-                            <button type="submit" class="main-btn">Accept Job</button>
+                    <% if (user.role === 'admin') { %>
+                        <a href="/jobs/edit/<%= job.id %>" class="btn btn-secondary">Edit</a>
+                        <form action="/jobs/delete/<%= job.id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Delete this job posting?');">Delete</button>
+                        </form>
+                    <% } else if (user.role === 'user') { %>
+                        <% if (acceptedJobIds && acceptedJobIds.includes(job.id)) { %>
+                            <span class="status-badge status-accepted" style="display:inline-block; margin-top:12px;">✓ Accepted</span>
+                        <% } else { %>
+                            <form action="/jobs/accept/<%= job.id %>" method="POST" style="display:inline;">
+                                <button type="submit" class="btn btn-primary">Accept Job</button>
+                            </form>
+                        <% } %>
+
+                        <!-- ⭐ Favourite button -->
+                        <form action="/favourites/add/<%= job.id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="secondary-btn">⭐ Favourite</button>
                         </form>
                     <% } %>
-                <% } %>
-            </div>
-        <% }); %>
+                </div>
+            <% }); %>
+        </div>
     </div>
 
 </body>

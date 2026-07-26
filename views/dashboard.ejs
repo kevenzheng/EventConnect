@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Dashboard - EventConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -10,19 +12,24 @@
         <h2>EventConnect</h2>
 
         <div class="nav-buttons">
-            <a href="/" class="nav-btn">Home</a>
-            <a href="/dashboard" class="nav-btn active-btn">Dashboard</a>
-            <a href="/jobs" class="nav-btn">View Jobs</a>
+            <a href="/">Home</a>
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
             <% if (user.role === 'admin') { %>
-                <a href="/jobs/add" class="nav-btn">Create Job</a>
+                <a href="/jobs/add">Create Job</a>
             <% } %>
             <% if (user.role === 'user') { %>
-                <a href="/applications" class="nav-btn">My Applications</a>
+                <a href="/applications">My Applications</a>
             <% } else if (user.role === 'admin') { %>
-                <a href="/applications/manage" class="nav-btn">Manage Applications</a>
+                <a href="/applications/manage">Manage Applications</a>
             <% } %>
-            <a href="/profile" class="nav-btn">My Profile</a>
-            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </nav>
 
@@ -37,48 +44,86 @@
             </div>
         <% } %>
 
-        <div class="dashboard-card">
-            <h3>Event Jobs</h3>
-            <p>Browse all posted event jobs.</p>
-            <a href="/jobs" class="main-btn">View Jobs</a>
-            <% if (user.role === 'admin') { %>
-                <a href="/jobs/add" class="main-btn secondary-btn">+ Create Job</a>
-            <% } %>
+        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+            <div class="error">
+                <%= errors[0] %>
+            </div>
+        <% } %>
+
+        <div class="card-grid">
+            <div class="dashboard-card">
+                <h3>Event Jobs</h3>
+                <p>Browse all posted event jobs.</p>
+                <a href="/jobs" class="btn btn-primary">View Jobs</a>
+                <% if (user.role === 'admin') { %>
+                    <a href="/jobs/add" class="btn btn-secondary">+ Create Job</a>
+                <% } %>
+            </div>
+
+            <div class="dashboard-card">
+                <% if (user.role === 'admin') { %>
+                    <h3>Applicant Management</h3>
+                    <p>View every applicant and update their application status.</p>
+                    <a href="/applications/manage" class="btn btn-primary">Manage Applications</a>
+                <% } else { %>
+                    <h3>My Applications</h3>
+                    <p>Check the status of the jobs you applied for, or withdraw an application.</p>
+                    <a href="/applications" class="btn btn-primary">View My Applications</a>
+                <% } %>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>Your Account Details</h3>
+
+                <p>
+                    <strong>Email:</strong>
+                    <%= user.email %>
+                </p>
+
+                <p>
+                    <strong>Role:</strong>
+                    <%= user.role %>
+                </p>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>EventConnect Access</h3>
+                <p>
+                    This dashboard is a protected page.
+                    Only users who have logged in can view it.
+                </p>
+            </div>
         </div>
 
-        <div class="dashboard-card">
-            <% if (user.role === 'admin') { %>
-                <h3>Applicant Management</h3>
-                <p>View every applicant and update their application status.</p>
-                <a href="/applications/manage" class="main-btn">Manage Applications</a>
-            <% } else { %>
-                <h3>My Applications</h3>
-                <p>Check the status of the jobs you applied for, or withdraw an application.</p>
-                <a href="/applications" class="main-btn">View My Applications</a>
-            <% } %>
-        </div>
+        <% if (user.role === 'admin' && overview) { %>
+            <div class="dashboard-card">
+                <h3>Overview</h3>
+                <p>A quick snapshot of jobs and applications across EventConnect.</p>
 
-        <div class="dashboard-card">
-            <h3>Your Account Details</h3>
-
-            <p>
-                <strong>Email:</strong>
-                <%= user.email %>
-            </p>
-
-            <p>
-                <strong>Role:</strong>
-                <%= user.role %>
-            </p>
-        </div>
-
-        <div class="dashboard-card">
-            <h3>EventConnect Access</h3>
-            <p>
-                This dashboard is a protected page.
-                Only users who have logged in can view it.
-            </p>
-        </div>
+                <table class="overview-table">
+                    <tr>
+                        <th>Total Jobs Posted</th>
+                        <td><%= overview.totalJobs %></td>
+                    </tr>
+                    <tr>
+                        <th>Total Applications</th>
+                        <td><%= overview.totalApplications %></td>
+                    </tr>
+                    <tr>
+                        <th>Pending</th>
+                        <td><span class="status-badge status-pending"><%= overview.pending %></span></td>
+                    </tr>
+                    <tr>
+                        <th>Accepted</th>
+                        <td><span class="status-badge status-accepted"><%= overview.accepted %></span></td>
+                    </tr>
+                    <tr>
+                        <th>Rejected</th>
+                        <td><span class="status-badge status-rejected"><%= overview.rejected %></span></td>
+                    </tr>
+                </table>
+            </div>
+        <% } %>
     </div>
 
 </body>

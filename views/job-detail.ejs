@@ -1,8 +1,9 @@
-<!-- Done by Ignatius and keven -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Job Details - EventConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -11,18 +12,25 @@
         <h2>EventConnect</h2>
 
         <div class="nav-buttons">
-            <a href="/" class="nav-btn">Home</a>
-            <a href="/dashboard" class="nav-btn">Dashboard</a>
-            <a href="/jobs" class="nav-btn active-btn">View Jobs</a>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
             <% if (user.role === 'admin') { %>
-                <a href="/jobs/add" class="nav-btn">Create Job</a>
+                <a href="/jobs/add">Create Job</a>
             <% } %>
             <% if (user.role === 'user') { %>
-                <a href="/applications" class="nav-btn">My Applications</a>
+                <a href="/applications">My Applications</a>
             <% } else if (user.role === 'admin') { %>
-                <a href="/applications/manage" class="nav-btn">Manage Applications</a>
+                <a href="/applications/manage">Manage Applications</a>
             <% } %>
-            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </nav>
 
@@ -32,56 +40,36 @@
             <div class="error"><%= errors[0] %></div>
         <% } %>
 
-        <div class="dashboard-card">
-            <h1><%= job.job_title %> &mdash; <%= job.event_name %></h1>
+        <div class="card-grid">
+            <div class="dashboard-card">
+                <h1><%= job.job_title %> &mdash; <%= job.event_name %></h1>
 
-            <p><%= job.description %></p>
+                <p><%= job.description %></p>
 
-            <p><strong>Location:</strong> <%= job.location %></p>
-            <p><strong>Event Date:</strong> <%= new Date(job.event_date).toISOString().split('T')[0] %></p>
-            <p><strong>Working Hours:</strong> <%= job.working_hours %></p>
-            <p><strong>Salary:</strong> $<%= job.salary %></p>
-            <p><strong>Workers Required:</strong> <%= job.workers_required %></p>
-        </div>
+                <p><strong>Location:</strong> <%= job.location %></p>
+                <p><strong>Event Date:</strong> <%= new Date(job.event_date).toISOString().split('T')[0] %></p>
+                <p><strong>Working Hours:</strong> <%= job.working_hours %></p>
+                <p><strong>Salary:</strong> $<%= job.salary %></p>
+                <p><strong>Workers Required:</strong> <%= job.workers_required %></p>
+            </div>
 
-        <div class="dashboard-card">
-            <h3>Employer Information</h3>
-            <p><strong>Employer:</strong> <%= job.employer_name %></p>
-            <p><strong>Contact Email:</strong> <%= job.employer_email %></p>
+            <div class="dashboard-card">
+                <h3>Employer Information</h3>
+                <p><strong>Employer:</strong> <%= job.employer_name %></p>
+                <p><strong>Contact Email:</strong> <%= job.employer_email %></p>
 
-            <h4>Employer Ratings & Reviews</h4>
-
-            <% if (reviews && reviews.length > 0) { %>
-                <% reviews.forEach(function(review) { %>
-                    <div class="review-card">
-                        <p class="star-rating">
-                            Rating: <%= review.rating %> / 5 ★ 
-                            <small style="color:#777;">by <%= review.reviewer_name %></small>
-                        </p>
-                        <p class="review-preview" title="<%= review.review_text %>">
-                            "<%= review.review_text %>"
-                        </p>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <!-- Fallback Example Preview -->
-                <div class="review-card">
-                    <p class="star-rating">Rating: 5 / 5 ★ <small style="color:#777;">by John (Example)</small></p>
-                    <p class="review-preview">"Great employer! Pay was prompt and instructions were clear..."</p>
-                </div>
-            <% } %>
-
-            <br>
-            <a href="/jobs/review/<%= job.id %>" class="nav-btn" style="display:inline-block; margin-top: 10px;">Leave a Review & Rating</a>
+                <h4>Employer Ratings</h4>
+                <p>No ratings available yet.</p>
+            </div>
         </div>
 
         <% if (user.role === 'user') { %>
             <form action="/applications/apply/<%= job.id %>" method="POST" style="display:inline;">
-                <button type="submit" class="main-btn">Apply for this Job</button>
+                <button type="submit" class="btn btn-primary">Apply for this Job</button>
             </form>
         <% } %>
 
-        <a href="/jobs" class="main-btn">&larr; Back to Job Listings</a>
+        <a href="/jobs" class="btn btn-secondary">&larr; Back to Job Listings</a>
     </div>
 
 </body>

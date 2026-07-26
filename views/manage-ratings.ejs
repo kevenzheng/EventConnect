@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ratings Management - EventConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+    <nav>
+        <h2>EventConnect</h2>
+        <div class="nav-buttons">
+            <a href="/" class="nav-btn">Home</a>
+            <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add">Create Job</a>
+            <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage">Manage Applications</a>
+            <% } %>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <h1>Overall Rating Management</h1>
+
+        <% if (messages && messages.length > 0) { %>
+            <div class="success"><%= messages[0] %></div>
+        <% } %>
+        <% if (errors && errors.length > 0) { %>
+            <div class="error"><%= errors[0] %></div>
+        <% } %>
+
+        <div class="dashboard-card">
+            <h2>Ratings Given to Employees</h2>
+            <table class="management-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Job Title</th>
+                        <th>Stars Given</th>
+                        <th>Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (ratingsGiven && ratingsGiven.length > 0) { %>
+                        <% ratingsGiven.forEach(function(rating) { %>
+                            <tr>
+                                <td><%= rating.student_name %></td>
+                                <td><%= rating.job_title %></td>
+                                <td><%= rating.rating %> / 5</td>
+                                <td><%= rating.review_text || '—' %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4">No employee ratings given yet.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dashboard-card">
+            <h2>Ratings Received from Employees</h2>
+            <table class="management-table">
+                <thead>
+                    <tr>
+                        <th>Reviewer</th>
+                        <th>Job Title</th>
+                        <th>Stars Received</th>
+                        <th>Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (ratingsReceived && ratingsReceived.length > 0) { %>
+                        <% ratingsReceived.forEach(function(review) { %>
+                            <tr>
+                                <td><%= review.reviewer_name %></td>
+                                <td><%= review.job_title %></td>
+                                <td><%= review.rating %> / 5</td>
+                                <td><%= review.review_text || '—' %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4">No reviews received yet.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

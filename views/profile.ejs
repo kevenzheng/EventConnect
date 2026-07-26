@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>User Profile - EventConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -11,9 +13,23 @@
         <div class="nav-buttons">
             <a href="/" class="nav-btn">Home</a>
             <a href="/dashboard" class="nav-btn">Dashboard</a>
-            <a href="/jobs" class="nav-btn">View Jobs</a>
+            <a href="/jobs">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add">Create Job</a>
+            <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage">Manage Applications</a>
+            <% } %>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
             <a href="/profile" class="nav-btn active-btn">My Profile</a>
-            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </nav>
 

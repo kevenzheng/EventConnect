@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Favourite Jobs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <nav>
+    <h2>EventConnect</h2>
+
+    <div class="nav-buttons">
+      <a href="/" class="nav-btn">Home</a>
+      <a href="/dashboard" class="nav-btn">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add">Create Job</a>
+            <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage">Manage Applications</a>
+            <% } %>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="dashboard-container">
+  <h1 class="page-title">⭐ My Favourite Jobs</h1>
+
+  <% if (messages && messages.length > 0) { %>
+    <div class="alert success"><%= messages[0] %></div>
+  <% } %>
+
+  <% if (errors && errors.length > 0) { %>
+    <div class="alert error"><%= errors[0] %></div>
+  <% } %>
+
+  <% if (jobs.length === 0) { %>
+    <p class="empty-msg">You havent added any favourites yet.</p>
+  <% } else { %>
+    <table class="fav-table">
+      <thead>
+        <tr>
+          <th>Job Title</th>
+          <th>Event Name</th>
+          <th>Location</th>
+          <th>Nearest Station</th>
+          <th>Wage</th>
+          <th>Event Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% jobs.forEach(job => { %>
+          <tr>
+            <td><%= job.job_title %></td>
+            <td><%= job.event_name %></td>
+            <td><%= job.location %></td>
+            <td><%= job.nearest_station %></td>
+            <td>$<%= job.salary %>/hr</td>
+            <td><%= new Date(job.event_date).toISOString().split('T')[0] %></td>
+            <td>
+              <form method="post" action="/favourites/remove/<%= job.id %>">
+                <button type="submit" class="remove-btn">Remove</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+  </div>
+</body>
+</html>

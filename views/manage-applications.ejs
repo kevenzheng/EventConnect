@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>Manage Applications - EventConnect</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -10,12 +12,25 @@
         <h2>EventConnect</h2>
 
         <div class="nav-buttons">
-            <a href="/" class="nav-btn">Home</a>
-            <a href="/dashboard" class="nav-btn">Dashboard</a>
-            <a href="/jobs" class="nav-btn">View Jobs</a>
-            <a href="/jobs/add" class="nav-btn">Create Job</a>
-            <a href="/applications/manage" class="nav-btn active-btn">Manage Applications</a>
-            <a href="/logout" class="nav-btn logout-btn">Logout</a>
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/jobs">View Jobs</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/jobs/add">Create Job</a>
+            <% } %>
+            <% if (user.role === 'user') { %>
+                <a href="/applications">My Applications</a>
+            <% } else if (user.role === 'admin') { %>
+                <a href="/applications/manage">Manage Applications</a>
+            <% } %>
+            <% if (user && user.role === 'user') { %>
+                <a href="/favourites" class="nav-btn active-btn">My Favourites</a>
+            <% } %>
+            <a href="/profile" class="nav-btn active-btn">My Profile</a>
+            <% if (user && user.role === 'admin') { %>
+            <a href="/profile/management" class="nav-btn">View Management</a>
+            <% } %>
+            <a href="/logout" class="btn-logout">Logout</a>
         </div>
     </nav>
 
@@ -38,32 +53,53 @@
             </div>
         <% } %>
 
-        <% applications.forEach(function(app) { %>
-            <div class="dashboard-card">
-                <h3><%= app.job_title %> &mdash; <%= app.event_name %></h3>
+        <div class="card-grid">
+            <% applications.forEach(function(app) { %>
+                <div class="dashboard-card">
+                    <h3><%= app.job_title %> &mdash; <%= app.event_name %></h3>
 
-                <p><strong>Applicant:</strong> <%= app.applicant_name %></p>
-                <p><strong>Applicant Email:</strong> <%= app.applicant_email %></p>
-                <p><strong>Applied On:</strong> <%= new Date(app.applied_at).toISOString().split('T')[0] %></p>
+                    <p><strong>Applicant:</strong> <%= app.applicant_name %></p>
+                    <p><strong>Applicant Email:</strong> <%= app.applicant_email %></p>
+                    <p><strong>Applied On:</strong> <%= new Date(app.applied_at).toISOString().split('T')[0] %></p>
 
-                <p>
-                    <strong>Status:</strong>
-                    <span class="status-badge status-<%= app.status.toLowerCase() %>"><%= app.status %></span>
-                </p>
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="status-badge status-<%= app.status.toLowerCase() %>"><%= app.status %></span>
+                    </p>
 
-                <!-- Status Management: admin picks a new status and submits -->
-                <form action="/applications/status/<%= app.id %>" method="POST" style="display:inline-block;">
-                    <select name="status">
-                        <option value="Pending" <%= app.status === 'Pending' ? 'selected' : '' %>>Pending</option>
-                        <option value="Accepted" <%= app.status === 'Accepted' ? 'selected' : '' %>>Accepted</option>
-                        <option value="Rejected" <%= app.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
-                    </select>
-                    <button type="submit">Update Status</button>
-                </form>
+                    <!-- Status Management: admin picks a new status and submits -->
+                    <form action="/applications/status/<%= app.id %>" method="POST" style="display:inline-block;">
+                        <select name="status">
+                            <option value="Pending" <%= app.status === 'Pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="Accepted" <%= app.status === 'Accepted' ? 'selected' : '' %>>Accepted</option>
+                            <option value="Rejected" <%= app.status === 'Rejected' ? 'selected' : '' %>>Rejected</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </form>
 
-                <form action="/applications/withdraw/<%= app.id %>" method="POST" style="display:inline;">
-                    <button type="submit" class="secondary-btn" onclick="return confirm('Delete this application?');">Delete</button>
-                </form>
+                    <% if (app.status === 'Accepted') { %>
+                    <div class="rating-card">
+                        <h4>Rate this employee</h4>
+                        <form action="/profile/rate-employee" method="POST">
+                            <input type="hidden" name="job_id" value="<%= app.job_id %>" />
+                            <input type="hidden" name="employee_id" value="<%= app.applicant_id %>" />
+
+                            <label for="rating-<%= app.id %>">Rating:</label>
+                            <select name="rating" id="rating-<%= app.id %>">
+                                <option value="5">5 - Excellent</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="3">3 - Good</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="1">1 - Poor</option>
+                            </select>
+
+                            <label for="review_text-<%= app.id %>">Feedback:</label>
+                            <textarea name="review_text" id="review_text-<%= app.id %>" rows="3" style="width:100%;"></textarea>
+
+                            <button type="submit" class="btn btn-secondary">Submit Rating</button>
+                        </form>
+                    </div>
+                <% } %>
             </div>
         <% }); %>
     </div>

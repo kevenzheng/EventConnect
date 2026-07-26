@@ -6,6 +6,13 @@ const db = require('./db/connection');
 const app = express();
 
 // =====================================================
+// ADMIN SECRET KEY
+// Purpose:
+// Secret key to verify admin registration.
+// =====================================================
+const ADMIN_SECRET_KEY = 'ADMIN_EVENT2026';
+
+// =====================================================
 // BASIC EXPRESS SETUP
 // Purpose:
 // Read form data and load CSS/images from public folder.
@@ -83,38 +90,88 @@ app.get('/register', (req, res) => {
 // REGISTER VALIDATION MIDDLEWARE
 // Purpose:
 // Check that all registration fields are filled.
-// Check that password is at least 6 characters.
+// Check password strength and admin secret key.
 // =====================================================
 const validateRegistration = (req, res, next) => {
-    const { username, email, password, address, contact, role } = req.body;
+    const { username, email, password, address, contact, role, adminKey } = req.body;
 
-    if (!username || !email || !password || !address || !contact || !role) {
+    if (!username || !email || !password || !contact || !role) {
         req.flash('error', 'All fields are required.');
-        req.flash('formData', req.body);
+        req.flash('formData', sanitizeFormData(req.body));
         return res.redirect('/register');
     }
 
-    if (password.length < 6) {
-        req.flash('error', 'Password should be at least 6 or more characters long');
-        req.flash('formData', req.body);
+    // Password validation pattern
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
+
+    if (!passwordPattern.test(password)) {
+        req.flash('error', 'Password must be at least 6 characters long and include letters, numbers, and one special character.');
+        req.flash('formData', sanitizeFormData(req.body));
         return res.redirect('/register');
+    }
+
+    if (role !== 'admin' && role !== 'user') {
+        req.flash('error', 'Invalid role selected.');
+        req.flash('formData', sanitizeFormData(req.body));
+        return res.redirect('/register');
+    }
+
+    // -----------------------------------------------
+    // ADMIN SECRET KEY + ADDRESS CHECK
+    // -----------------------------------------------
+    if (role === 'admin') {
+        if (!adminKey || adminKey !== ADMIN_SECRET_KEY) {
+            req.flash('error', 'Invalid admin secret key.');
+            req.flash('formData', sanitizeFormData(req.body));
+            return res.redirect('/register');
+        }
+
+        if (!address) {
+            req.flash('error', 'Address is required for admin (employer) accounts.');
+            req.flash('formData', sanitizeFormData(req.body));
+            return res.redirect('/register');
+        }
     }
 
     next();
 };
 
 // =====================================================
+// SANITIZE FORM DATA (helper)
+// Purpose:
+// Remove sensitive data (passwords, admin keys) before
+// storing form data in flash session.
+// =====================================================
+function sanitizeFormData(body) {
+    const { password, adminKey, ...safeData } = body;
+    return safeData;
+}
+
+// =====================================================
+// VERIFY ADMIN SECRET KEY ROUTE (AJAX)
+// Purpose:
+// Allow frontend to validate admin key in real-time.
+// =====================================================
+app.post('/register/verify-admin-key', (req, res) => {
+    const { adminKey } = req.body;
+    const valid = Boolean(adminKey) && adminKey === ADMIN_SECRET_KEY;
+    res.json({ success: valid });
+});
+
+// =====================================================
 // REGISTER FORM SUBMISSION ROUTE
 // Purpose:
 // Insert new user into users table.
-// Password is stored using SHA1 like Lesson 19.
+// Password is stored using SHA1 hashing.
 // =====================================================
 app.post('/register', validateRegistration, (req, res) => {
     const { username, email, password, address, contact, role } = req.body;
 
+    const finalAddress = address || '';
+
     const sql = 'INSERT INTO users (username, email, password, address, contact, role) VALUES (?, ?, SHA1(?), ?, ?, ?)';
 
-    db.query(sql, [username, email, password, address, contact, role], (err, result) => {
+    db.query(sql, [username, email, password, finalAddress, contact, role], (err, result) => {
         if (err) {
             throw err;
         }
@@ -161,11 +218,11 @@ app.post('/login', (req, res) => {
         if (results.length > 0) {
             req.session.user = results[0];
             req.flash('success', 'Login successful!');
-            res.redirect('/dashboard');
-        } else {
-            req.flash('error', 'Invalid email or password.');
-            res.redirect('/login');
+            return res.redirect('/dashboard');
         }
+
+        req.flash('error', 'Invalid email or password.');
+        res.redirect('/login');
     });
 });
 
@@ -174,11 +231,53 @@ app.post('/login', (req, res) => {
 // Purpose:
 // Protected page.
 // Only logged-in users can access.
+// Admins see job and application statistics.
 // =====================================================
 app.get('/dashboard', checkAuthenticated, (req, res) => {
-    res.render('dashboard', {
-        user: req.session.user,
-        messages: req.flash('success')
+    if (req.session.user.role !== 'admin') {
+        return res.render('dashboard', {
+            user: req.session.user,
+            overview: null,
+            errors: req.flash('error')
+        });
+    }
+
+    const jobsCountSql = 'SELECT COUNT(*) AS total FROM jobs';
+
+    db.query(jobsCountSql, (err, jobsResult) => {
+        if (err) {
+            throw err;
+        }
+
+        const statusCountSql = 'SELECT status, COUNT(*) AS total FROM applications GROUP BY status';
+
+        db.query(statusCountSql, (err2, statusResults) => {
+            if (err2) {
+                throw err2;
+            }
+
+            const overview = {
+                totalJobs: jobsResult[0].total,
+                totalApplications: 0,
+                pending: 0,
+                accepted: 0,
+                rejected: 0
+            };
+
+            statusResults.forEach((row) => {
+                const key = row.status.toLowerCase();
+                if (Object.prototype.hasOwnProperty.call(overview, key)) {
+                    overview[key] = row.total;
+                }
+                overview.totalApplications += row.total;
+            });
+
+            res.render('dashboard', {
+                user: req.session.user,
+                overview: overview,
+                errors: req.flash('error')
+            });
+        });
     });
 });
 
@@ -193,24 +292,25 @@ app.get('/logout', (req, res) => {
 });
 
 // =====================================================
-// PART B - ADDING NEW INFORMATION TO THE SYSTEM
-// Feature: Post New Job (Create)
+// PART B - JOB MANAGEMENT
+// Feature: Post New Job / View / Edit / Delete / Accept
 // Purpose:
-// All routes for this feature live in routes/jobs.js so it can be
-// shown and graded as one self-contained file.
-// Mounted here so its routes become /jobs/add (GET and POST).
+// All routes for this feature live in routes/jobs.js
+// Mounted here so its routes become /jobs/add, /jobs/edit/:id, etc.
 // =====================================================
-
-// Yashveen Part B (START) 
 const jobsRouter = require('./routes/jobs');
 app.use('/jobs', jobsRouter);
-// Yashveen Part B (END)
 
-
-// Ignatius start of Code
+// =====================================================
+// PART C - BROWSE JOBS
+// Feature: View all jobs and job details
+// Purpose:
+// Mounted at the same /jobs base so its route becomes /jobs/:id
+// Must be mounted AFTER jobsRouter so static paths like /jobs/add
+// are matched first.
+// =====================================================
 const browseRouter = require('./routes/browse');
 app.use('/jobs', browseRouter);
-// Ignatius end of Code
 
 // =====================================================
 // PART E - APPLICATION MANAGEMENT
@@ -218,24 +318,32 @@ app.use('/jobs', browseRouter);
 //          Applicant Management / Status Management
 // Purpose:
 // All routes for this feature live in routes/applications.js
-// so it can be shown and graded as one self-contained file.
 // Mounted here so its routes become /applications (GET and POST).
 // =====================================================
 const applicationsRouter = require('./routes/applications');
 app.use('/applications', applicationsRouter);
 
-//keven start of code
-// Profile Feature Route
+// =====================================================
+// FAVOURITES FEATURE
+// Purpose:
+// Allow users to save/bookmark favourite jobs.
+// =====================================================
+const favouritesRouter = require('./routes/favourites');
+app.use('/favourites', favouritesRouter);
+
+// =====================================================
+// PROFILE FEATURE
+// Purpose:
+// Allow users to view and manage their profile.
+// =====================================================
 const profileRouter = require('./routes/profile');
 app.use('/profile', profileRouter);
-// keven end of code
+
 // =====================================================
 // START SERVER
 // Purpose:
 // Run app on http://localhost:3000
 // =====================================================
 app.listen(3000, () => {
-    console.log(`Server started on port 3000`);
+    console.log(`Server started on port http://localhost:3000`);
 });
-
-// Samie end of Login Page Assignment ===============================================================

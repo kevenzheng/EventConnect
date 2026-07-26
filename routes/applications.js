@@ -1,6 +1,6 @@
 // =====================================================================================
 // PART E - APPLICATION MANAGEMENT
-// Functions: Apply for Job, View Applications, Withdraw/Delete Application,
+// Functions: Apply for Job, View applications, Withdraw/Delete Application,
 //            Applicant Management, Status Management
 // Author: Harsha - Student E
 //
@@ -14,11 +14,11 @@
 // routes/jobs.js.
 //
 // Application flow for each function:
-// Apply     -> POST /applications/apply/:jobId    -> INSERT INTO Applications
+// Apply     -> POST /applications/apply/:jobId    -> INSERT INTO applications
 // View      -> GET  /applications                 -> SELECT own applications (user)
 // Manage    -> GET  /applications/manage           -> SELECT all applications (admin)
-// Withdraw  -> POST /applications/withdraw/:id     -> DELETE FROM Applications
-// Status    -> POST /applications/status/:id       -> UPDATE Applications SET status
+// Withdraw  -> POST /applications/withdraw/:id     -> DELETE FROM applications
+// Status    -> POST /applications/status/:id       -> UPDATE applications SET status
 // =====================================================================================
 
 const express = require('express');
@@ -75,7 +75,7 @@ const checkWorker = (req, res, next) => {
 // Route: POST /applications/apply/:jobId
 // Purpose:
 // Lets a worker apply for an event job. Creates a new row
-// in Applications with status "Pending". A user can't apply
+// in applications with status "Pending". A user can't apply
 // twice for the same job because of the UNIQUE KEY on the
 // table (job_id, user_id).
 // =====================================================
@@ -83,7 +83,7 @@ router.post('/apply/:jobId', checkAuthenticated, checkWorker, (req, res) => {
     const jobId = req.params.jobId;
     const userId = req.session.user.id;
 
-    const sql = 'INSERT INTO Applications (job_id, user_id, status) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO applications (job_id, user_id, status) VALUES (?, ?, ?)';
 
     db.query(sql, [jobId, userId, 'Pending'], (err, result) => {
         if (err) {
@@ -94,7 +94,7 @@ router.post('/apply/:jobId', checkAuthenticated, checkWorker, (req, res) => {
             throw err;
         }
 
-        req.flash('success', 'Application submitted! You can check the status under My Applications.');
+        req.flash('success', 'Application submitted! You can check the status under My applications.');
         res.redirect('/applications');
     });
 });
@@ -108,13 +108,13 @@ router.post('/apply/:jobId', checkAuthenticated, checkWorker, (req, res) => {
 // =====================================================
 router.get('/', checkAuthenticated, checkWorker, (req, res) => {
     const sql = `
-        SELECT Applications.id, Applications.status, Applications.applied_at,
-               Jobs.id AS job_id, Jobs.job_title, Jobs.event_name,
-               Jobs.event_date, Jobs.location
-        FROM Applications
-        JOIN Jobs ON Applications.job_id = Jobs.id
-        WHERE Applications.user_id = ?
-        ORDER BY Applications.applied_at DESC
+        SELECT applications.id, applications.status, applications.applied_at,
+               jobs.id AS job_id, jobs.job_title, jobs.event_name,
+               jobs.event_date, jobs.location
+        FROM applications
+        JOIN jobs ON applications.job_id = jobs.id
+        WHERE applications.user_id = ?
+        ORDER BY applications.applied_at DESC
     `;
 
     db.query(sql, [req.session.user.id], (err, results) => {
@@ -144,11 +144,11 @@ router.post('/withdraw/:id', checkAuthenticated, (req, res) => {
 
     // Admin can delete any application. A normal user can only
     // delete their own, so we add the user_id check for them.
-    let sql = 'DELETE FROM Applications WHERE id = ?';
+    let sql = 'DELETE FROM applications WHERE id = ?';
     let params = [applicationId];
 
     if (req.session.user.role !== 'admin') {
-        sql = 'DELETE FROM Applications WHERE id = ? AND user_id = ?';
+        sql = 'DELETE FROM applications WHERE id = ? AND user_id = ?';
         params = [applicationId, req.session.user.id];
     }
 
@@ -177,13 +177,13 @@ router.post('/withdraw/:id', checkAuthenticated, (req, res) => {
 // =====================================================
 router.get('/manage', checkAuthenticated, checkAdmin, (req, res) => {
     const sql = `
-        SELECT Applications.id, Applications.status, Applications.applied_at,
-               Jobs.job_title, Jobs.event_name,
+        SELECT applications.id, applications.status, applications.applied_at,
+               jobs.job_title, jobs.event_name,
                users.username AS applicant_name, users.email AS applicant_email
-        FROM Applications
-        JOIN Jobs ON Applications.job_id = Jobs.id
-        JOIN users ON Applications.user_id = users.id
-        ORDER BY Applications.applied_at DESC
+        FROM applications
+        JOIN jobs ON applications.job_id = jobs.id
+        JOIN users ON applications.user_id = users.id
+        ORDER BY applications.applied_at DESC
     `;
 
     db.query(sql, (err, results) => {
@@ -216,7 +216,7 @@ router.post('/status/:id', checkAuthenticated, checkAdmin, (req, res) => {
         return res.redirect('/applications/manage');
     }
 
-    const sql = 'UPDATE Applications SET status = ? WHERE id = ?';
+    const sql = 'UPDATE applications SET status = ? WHERE id = ?';
 
     db.query(sql, [status, req.params.id], (err, result) => {
         if (err) {

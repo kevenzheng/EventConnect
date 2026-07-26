@@ -1,232 +1,337 @@
 /* =====================================================
-   GENERAL PAGE STYLE
+   EVENTCONNECT — STYLE SHEET
    Purpose:
-   Sets page background, font, and text colour.
-===================================================== */
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f7f4ff;
-    color: #1e1e2f;
+   Restyles the authentication pages (login/register),
+   home page, and dashboard to match the new design
+   reference: cream background, white cards, black pill
+   buttons, and a soft purple/mint accent palette.
+   ===================================================== */
+
+/* -----------------------------------------------------
+   1. FONT IMPORT
+   Purpose: Load a rounded, modern sans-serif font
+   (Poppins) to match the reference design's typography.
+   Add the matching <link> tag in the <head> of every
+   .ejs file (see step-by-step notes below the file).
+   ----------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+/* -----------------------------------------------------
+   2. DESIGN TOKENS (CSS VARIABLES)
+   Purpose: Central place to store the color palette and
+   spacing so every section of the site stays consistent.
+   Change a value here and it updates everywhere.
+   ----------------------------------------------------- */
+:root {
+    --color-bg: #F7F1EA;           /* cream page background */
+    --color-card: #FFFFFF;         /* white card background */
+    --color-black: #14141A;        /* near-black for buttons/headings */
+    --color-purple: #B7A6F2;       /* soft lavender accent */
+    --color-purple-dark: #8C74E8;  /* darker purple for hover states */
+    --color-mint: #C9F3E1;         /* mint accent (secondary highlight) */
+    --color-text: #1A1A1A;         /* primary text */
+    --color-text-muted: #6B6B76;   /* secondary/gray text */
+    --color-border: #E7DFD5;       /* subtle border on cream bg */
+    --color-error-bg: #FDEAEA;
+    --color-error-text: #B3261E;
+    --color-success-bg: #E6F8EE;
+    --color-success-text: #1E7A46;
+
+    --radius-lg: 20px;
+    --radius-pill: 999px;
+    --shadow-card: 0 10px 30px rgba(20, 20, 26, 0.06);
 }
 
-/* =====================================================
-   NAVIGATION BAR
-   Purpose:
-   Creates the top purple navbar.
-===================================================== */
+/* -----------------------------------------------------
+   3. GLOBAL RESET
+   Purpose: Remove default browser spacing so layout is
+   predictable across pages.
+   ----------------------------------------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* -----------------------------------------------------
+   3a. SITE-WIDE BACKGROUND ART
+   Purpose: Same organic purple/yellow/mint blob artwork on
+   every page — homepage, login, register, dashboard — since
+   they all load this one style.css. `position: fixed` pins
+   it to the viewport corners (matches the reference image)
+   and keeps it from scrolling with page content. `z-index: -1`
+   sends it behind everything else automatically, so no other
+   element needs extra z-index rules to sit above it.
+   See /public/images/hero-bg.svg for the shape breakdown.
+   ----------------------------------------------------- */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: url('/images/hero-bg.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+/* -----------------------------------------------------
+   4. NAVBAR
+   Purpose: Top navigation shared by index/login/register/
+   dashboard. Kept minimal and light to sit on the cream
+   background, matching the reference's clean header.
+   ----------------------------------------------------- */
 nav {
-    background-color: #2b124c;
-    color: white;
-    padding: 18px 45px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 24px 48px;
 }
 
 nav h2 {
-    margin: 0;
-    color: #ffb703;
-    font-size: 34px;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--color-black);
 }
 
-/* =====================================================
-   NAVIGATION BUTTON AREA
-   Purpose:
-   Keeps Home/Login/Register buttons aligned nicely.
-===================================================== */
 .nav-buttons {
     display: flex;
-    gap: 12px;
     align-items: center;
+    gap: 24px;
 }
 
-/* =====================================================
-   NAVIGATION BUTTONS
-   Purpose:
-   Turns normal links into buttons.
-===================================================== */
-.nav-btn {
-    color: white;
+.nav-buttons a {
     text-decoration: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: bold;
-    background-color: transparent;
-    border: 2px solid transparent;
-}
-
-.nav-btn:hover {
-    background-color: #ff8500;
-    color: white;
-}
-
-/* =====================================================
-   ACTIVE BUTTON
-   Purpose:
-   Highlights the current page button.
-===================================================== */
-.active-btn {
-    background-color: #ff8500;
-    color: white;
-}
-
-/* =====================================================
-   REGISTER BUTTON
-   Purpose:
-   Makes Register stand out.
-===================================================== */
-.register-btn {
-    background-color: #7b2cbf;
-    color: white;
-}
-
-/* =====================================================
-   LOGOUT BUTTON
-   Purpose:
-   Makes Logout visually different.
-===================================================== */
-.logout-btn {
-    background-color: #b00020;
-    color: white;
-}
-
-/* =====================================================
-   HOMEPAGE HERO SECTION
-   Purpose:
-   Creates homepage event-job introduction.
-===================================================== */
-.hero {
-    padding: 100px 40px;
-    text-align: center;
-    background: linear-gradient(135deg, #2b124c, #7b2cbf);
-    color: white;
-    height: 90vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.hero h1 {
-    font-size: 46px;
-    margin-bottom: 15px;
-}
-
-.hero p {
-    font-size: 18px;
-}
-
-/* =====================================================
-   MAIN BUTTONS
-   Purpose:
-   Styles large homepage action buttons.
-===================================================== */
-.main-btn,
-button {
-    background-color: #ff8500;
-    color: white;
-    border: none;
-    padding: 12px 26px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    margin-top: 15px;
-}
-
-.main-btn:hover,
-button:hover {
-    background-color: #ffb703;
-    color: #2b124c;
-}
-
-.secondary-btn {
-    background-color: #7b2cbf;
-    margin-left: 10px;
-}
-
-/* =====================================================
-   LOGIN / REGISTER CONTAINER
-   Purpose:
-   Creates centre white card for login and register pages.
-===================================================== */
-.login-container {
-    width: 520px;
-    margin: 60px auto;
-    background-color: white;
-    padding: 45px;
-    border-radius: 18px;
-    box-shadow: 0 8px 25px rgba(43, 18, 76, 0.15);
-}
-
-.login-container h1 {
-    color: #2b124c;
-    margin-bottom: 5px;
-    font-size: 38px;
-}
-
-.login-container p {
-    color: #555;
-}
-
-/* =====================================================
-   FORM INPUTS
-   Purpose:
-   Styles input boxes and select dropdown.
-===================================================== */
-label {
-    display: block;
-    margin-top: 15px;
-    font-weight: bold;
-    color: #2b124c;
-}
-
-input,
-select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border: 1px solid #ccc;
-    border-radius: 7px;
-    box-sizing: border-box;
+    color: var(--color-text);
+    font-weight: 500;
     font-size: 15px;
+    transition: color 0.2s ease;
 }
 
-/* =====================================================
-   FLASH MESSAGES
-   Purpose:
-   Shows success and error messages.
-===================================================== */
-.error {
-    background-color: #ffe5e5;
-    color: #b00020;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 15px;
+.nav-buttons a:hover {
+    color: var(--color-purple-dark);
 }
 
-.success {
-    background-color: #e6ffed;
-    color: #0f7b32;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
-
-/* =====================================================
-   SMALL TEXT
-   Purpose:
-   Styles login/register links under form.
-===================================================== */
-.small-text {
-    margin-top: 20px;
+/* -----------------------------------------------------
+   4a. LOGOUT BUTTON
+   Purpose: Styled as a solid black pill (same visual
+   language as the primary form buttons) so it stands out
+   from the plain text nav links and reads clearly as an
+   action, not just another page link. Higher specificity
+   (.nav-buttons a.btn-logout) so it overrides the plain
+   `.nav-buttons a` color/hover rules above.
+   ----------------------------------------------------- */
+.nav-buttons a.btn-logout {
+    background-color: var(--color-black);
+    color: #FFFFFF;
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
     font-size: 14px;
 }
 
+.nav-buttons a.btn-logout:hover {
+    background-color: var(--color-purple-dark);
+    color: #FFFFFF;
+}
+
+/* -----------------------------------------------------
+   5. AUTH CARD (LOGIN / REGISTER)
+   Purpose: The white rounded card that holds the login
+   and register forms, centered on the cream background —
+   mirrors the phone-mockup "cards" in the reference image.
+   ----------------------------------------------------- */
+.login-container {
+    max-width: 420px;
+    margin: 48px auto;
+    background-color: var(--color-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 40px 36px;
+}
+
+.login-container h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--color-black);
+    margin-bottom: 8px;
+}
+
+.login-container > p {
+    color: var(--color-text-muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* -----------------------------------------------------
+   6. FORM FIELDS
+   Purpose: Style labels and inputs to look like soft
+   "pill" search bars, similar to the search bar in the
+   reference design.
+   ----------------------------------------------------- */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+
+form input,
+form select {
+    display: block;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background-color: var(--color-bg);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form input:focus,
+form select:focus {
+    border-color: var(--color-purple);
+    box-shadow: 0 0 0 3px rgba(183, 166, 242, 0.25);
+}
+
+/* -----------------------------------------------------
+   5a. MULTI-STEP REGISTER FORM
+   Purpose: Step 1 (role choice), Step 2 (admin secret key),
+   and Step 3 (account info) sections of register.ejs. Only
+   one .reg-step is visible at a time (JS toggles display).
+   ----------------------------------------------------- */
+.role-choice {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.role-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 20px 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg);
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    text-align: left;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+}
+
+.role-card:hover {
+    border-color: var(--color-purple);
+    box-shadow: 0 0 0 3px rgba(183, 166, 242, 0.25);
+    transform: translateY(-1px);
+}
+
+.role-card-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-black);
+}
+
+.role-card-desc {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.step-back {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-purple-dark);
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.step-back:hover {
+    text-decoration: underline;
+}
+
+.field-error {
+    font-size: 12px;
+    color: var(--color-error-text);
+    margin-top: 6px;
+}
+
+/* -----------------------------------------------------
+   6a. ADMIN KEY FIELD + HINT TEXT
+   Purpose: Wraps the conditional Admin Secret Key input
+   (shown/hidden by register.ejs's script) and styles the
+   small gray helper line underneath it.
+   ----------------------------------------------------- */
+.admin-key-group {
+    display: none; /* JS in register.ejs switches this to "block" when role = admin */
+}
+
+.field-hint {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    margin-top: 6px;
+}
+
+/* -----------------------------------------------------
+   7. PRIMARY BUTTON
+   Purpose: Solid black pill button, matching the black
+   "Similar Job Alert" bar / bold CTA style in the reference.
+   ----------------------------------------------------- */
+form button[type="submit"] {
+    margin-top: 28px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background-color: var(--color-black);
+    color: #FFFFFF;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+form button[type="submit"]:hover {
+    background-color: var(--color-purple-dark);
+}
+
+form button[type="submit"]:active {
+    transform: scale(0.98);
+}
+
+/* -----------------------------------------------------
+   8. SECONDARY TEXT / LINKS
+   Purpose: "Already have an account? Login here" style
+   footer text under the form.
+   ----------------------------------------------------- */
+.small-text {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-muted);
+}
+
 .small-text a {
-    color: #7b2cbf;
-    font-weight: bold;
+    color: var(--color-purple-dark);
+    font-weight: 600;
     text-decoration: none;
 }
 
@@ -234,82 +339,311 @@ select {
     text-decoration: underline;
 }
 
-/* =====================================================
-   DASHBOARD PAGE
-   Purpose:
-   Styles dashboard after login.
-===================================================== */
-.dashboard-container {
-    width: 700px;
-    margin: 60px auto;
-    background-color: white;
-    padding: 35px;
-    border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(43, 18, 76, 0.15);
+/* -----------------------------------------------------
+   9. FLASH MESSAGES (SUCCESS / ERROR)
+   Purpose: Rounded banners for req.flash() messages,
+   using soft mint (success) and soft red (error) instead
+   of the old purple, to match the pastel accent style.
+   ----------------------------------------------------- */
+.success,
+.error {
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    margin-bottom: 16px;
 }
 
-.dashboard-container h1 {
-    color: #2b124c;
+.success {
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
-.dashboard-card {
-    margin-top: 25px;
-    padding: 25px;
-    border-left: 6px solid #ff8500;
-    background-color: #f7f4ff;
-    border-radius: 10px;
+.error {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-text);
 }
-/* =====================================================
-   PART E - APPLICATION STATUS BADGES
-   Purpose:
-   Colour codes the status shown on My Applications and
-   Manage Applications pages so it's easy to read at a glance.
-===================================================== */
+
+.error p {
+    margin: 0;
+}
+
+.error p + p {
+    margin-top: 4px;
+}
+
+/* -----------------------------------------------------
+   10. HOME PAGE HERO (index.ejs)
+   Purpose: Large centered intro section with pill CTA
+   buttons, echoing the bold headline style in the
+   reference design.
+   ----------------------------------------------------- */
+.hero {
+    max-width: 1100px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 160px 24px;
+}
+
+.hero h1 {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--color-black);
+    margin-bottom: 16px;
+}
+
+.hero p {
+    color: var(--color-text-muted);
+    font-size: 16px;
+    margin-bottom: 32px;
+}
+
+.hero-actions a {
+    display: inline-block;
+    padding: 14px 28px;
+    margin: 0 8px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.15s ease;
+}
+
+.hero-actions a:first-of-type {
+    background-color: var(--color-black);
+    color: #FFFFFF;
+}
+
+.hero-actions a:last-of-type {
+    background-color: var(--color-purple);
+    color: var(--color-black);
+}
+
+.hero-actions a:hover {
+    transform: translateY(-2px);
+}
+
+/* Below ~700px, reduce hero padding so the background art
+   doesn't push the headline too far down on small screens. */
+@media (max-width: 700px) {
+    .hero {
+        padding: 100px 20px;
+    }
+}
+
+/* -----------------------------------------------------
+   9a. ACTIVE NAV LINK
+   Purpose: Marks whichever nav link matches the current
+   page (e.g. "View Jobs" while on /jobs), so people can
+   see where they are. Add class="active" on that one <a>.
+   ----------------------------------------------------- */
+.nav-buttons a.active {
+    color: var(--color-black);
+    font-weight: 700;
+}
+
+/* -----------------------------------------------------
+   9b. TEXTAREA (job description field)
+   Purpose: form input/select above already cover pill
+   text fields, but a <textarea> needs its own rule since
+   it's multi-line — same look, slightly less round corners
+   so multi-line text doesn't look squeezed.
+   ----------------------------------------------------- */
+form textarea {
+    display: block;
+    width: 100%;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-bg);
+    outline: none;
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+form textarea:focus {
+    border-color: var(--color-purple);
+    box-shadow: 0 0 0 3px rgba(183, 166, 242, 0.25);
+}
+
+/* -----------------------------------------------------
+   9c. ACTION BUTTONS (jobs / applications pages)
+   Purpose: Pill buttons used outside of forms — "View
+   Details", "Edit", "Delete", "Accept Job", "Apply",
+   "Withdraw" etc. on jobs.ejs, job-detail.ejs,
+   manage-applications.ejs, my-applications.ejs. Works on
+   both <a> and <button> so it fits either markup.
+   ----------------------------------------------------- */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 12px 8px 0 0;
+    border: none;
+    border-radius: var(--radius-pill);
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-black);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-purple-dark);
+}
+
+.btn-secondary {
+    background-color: var(--color-purple);
+    color: var(--color-black);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-mint);
+}
+
+.btn-danger {
+    background-color: var(--color-error-bg);
+    color: var(--color-error-text);
+}
+
+.btn-danger:hover {
+    background-color: #F8D5D5;
+}
+
+/* -----------------------------------------------------
+   9d. STATUS BADGES (Part E - Application Management)
+   Purpose: Colour-codes the application status shown on
+   My Applications / Manage Applications so it's readable
+   at a glance, using the same soft-pastel palette as the
+   flash messages above.
+   ----------------------------------------------------- */
 .status-badge {
     display: inline-block;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 13px;
+    padding: 4px 14px;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: 12px;
 }
 
 .status-pending {
-    background-color: #fff3cd;
-    color: #8a6d00;
+    background-color: #FFF3CD;
+    color: #8A6D00;
 }
 
 .status-accepted {
-    background-color: #e6ffed;
-    color: #0f7b32;
+    background-color: var(--color-success-bg);
+    color: var(--color-success-text);
 }
 
 .status-rejected {
-    background-color: #ffe5e5;
-    color: #b00020;
+    background-color: var(--color-error-bg);
+    color: var(--color-error-text);
 }
 
-
-/* =================================
- Employer Reviews & Rating Styles */
-.review-card {
-    border-bottom: 1px solid #ddd;
-    padding: 10px 0;
+/* -----------------------------------------------------
+   9e. OVERVIEW TABLE (admin dashboard)
+   Purpose: Simple 2-column summary table (label + value)
+   for the admin-only "Overview" card on dashboard.ejs —
+   total jobs, total applications, status breakdown.
+   ----------------------------------------------------- */
+.overview-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
 }
 
-/* ================================= 
- Review preview: truncated after roughly 8 words with a fade-out effect */
-.review-preview {
-    max-width: 280px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: #555;
-    position: relative;
-    margin: 4px 0 0 0;
+.overview-table tr {
+    border-bottom: 1px solid var(--color-border);
 }
 
-.star-rating {
-    color: #f39c12;
-    font-weight: bold;
-    margin: 0;
+.overview-table tr:last-child {
+    border-bottom: none;
+}
+
+.overview-table th,
+.overview-table td {
+    text-align: left;
+    padding: 10px 4px;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.overview-table th {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.overview-table td {
+    color: var(--color-text-muted);
+    text-align: right;
+}
+
+/* -----------------------------------------------------
+   11. DASHBOARD (dashboard.ejs)
+   Purpose: Cards for account details, styled the same as
+   the auth card so the whole app feels consistent.
+   ----------------------------------------------------- */
+.dashboard-container {
+    max-width: 1100px;
+    margin: 48px auto;
+    padding: 0 24px;
+}
+
+.dashboard-container h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.dashboard-card {
+    background-color: var(--color-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: 24px;
+    margin-top: 20px;
+}
+
+.dashboard-card h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.dashboard-card p {
+    font-size: 14px;
+    color: var(--color-text-muted);
+    margin-top: 6px;
+}
+
+/* -----------------------------------------------------
+   11a. CARD GRID (dashboard / jobs / applications lists)
+   Purpose: Lays cards out 2-per-row so the page uses more
+   of the available width instead of one narrow centered
+   column. Wrap a set of .dashboard-card elements in
+   <div class="card-grid">...</div>. Cards inside the grid
+   get margin-top: 0 since the grid `gap` handles spacing
+   instead. Drops to 1 column under 800px.
+   ----------------------------------------------------- */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+    align-items: start;
+}
+
+.card-grid .dashboard-card {
+    margin-top: 0;
+}
+
+@media (max-width: 800px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
 }

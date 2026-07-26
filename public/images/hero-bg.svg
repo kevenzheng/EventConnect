@@ -1,0 +1,55 @@
+<svg viewBox="0 0 1024 854" xmlns="http://www.w3.org/2000/svg">
+  <!-- =====================================================
+       SITE-WIDE BACKGROUND ART
+       Purpose: Corner-anchored organic blobs (purple / yellow
+       / mint) matching the reference mood board exactly:
+       purple sweep top-left, small mint circle top-right, big
+       mint "target" circle + yellow bone shape center-right,
+       small mint ellipse bottom-left, mint blob bottom-right.
+       Applied to the whole site via body::before in style.css,
+       so it shows behind every page, not just the homepage.
+       ===================================================== -->
+  <defs>
+    <filter id="soften" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14" />
+    </filter>
+  </defs>
+
+  <g filter="url(#soften)">
+    <!-- Light purple blob hugging the top-left corner -->
+    <path d="M -80,-80 C 150,-80 480,-40 500,180
+             C 515,340 300,420 100,460
+             C -40,490 -80,300 -80,150 Z"
+          fill="#C9BFF5" fill-opacity="0.85" />
+
+    <!-- Darker purple accent circle peeking out of the very corner -->
+    <circle cx="30" cy="10" r="220" fill="#A78BFA" fill-opacity="0.55" />
+
+    <!-- Small mint circle, top-right corner -->
+    <circle cx="905" cy="115" r="60" fill="#7FDBA6" fill-opacity="0.5" />
+
+    <!-- Large mint "target" circle, center-right (outer ring + inner core) -->
+    <circle cx="715" cy="320" r="130" fill="#7FDBA6" fill-opacity="0.35" />
+    <circle cx="715" cy="320" r="95" fill="#5FCB93" fill-opacity="0.8" />
+
+    <!-- Yellow "bone" shape, overlapping the mint circle, sweeping down-right -->
+    <path d="M 650,470 C 610,430 615,360 665,340
+             C 705,325 730,360 760,390
+             C 800,430 850,320 900,300
+             C 950,280 990,320 985,370
+             C 980,420 920,440 880,470
+             C 840,500 800,560 750,570
+             C 700,580 665,530 650,470 Z"
+          fill="#F4CE6E" fill-opacity="0.85" />
+
+    <!-- Small mint ellipse, bottom-left -->
+    <ellipse cx="195" cy="675" rx="88" ry="68" fill="#7FDBA6" fill-opacity="0.5" />
+
+    <!-- Mint blob, bottom-right corner -->
+    <path d="M 890,650 C 930,630 985,635 1010,675
+             C 1035,715 1015,760 970,770
+             C 925,780 885,750 880,710
+             C 878,690 875,660 890,650 Z"
+          fill="#7FDBA6" fill-opacity="0.55" />
+  </g>
+</svg>
